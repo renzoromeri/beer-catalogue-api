@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: beer-catalogue-api
+  labels:
+    app: beer-catalogue-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: beer-catalogue-api
+  template:
+    metadata:
+      labels:
+        app: beer-catalogue-api
+    spec:
+      containers:
+        - name: beer-catalogue-api
+          image: beer-catalogue-api:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: beer-catalogue-api-config
+            - secretRef:
+                name: beer-catalogue-api-secret
+          readinessProbe:
+            httpGet:
+              path: /v3/api-docs
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /v3/api-docs
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 10

@@ -53,3 +53,27 @@ docker compose up --build
 
 - API: http://localhost:8080
 - Swagger UI: http://localhost:8080/swagger-ui/index.html
+
+## Run on Minikube
+
+The values in `k8s/secret.yaml` are local-development placeholders only.
+
+```bash
+minikube start --driver=docker
+eval $(minikube docker-env)
+docker build -t beer-catalogue-api:latest .
+kubectl apply -f k8s/
+kubectl get pods
+kubectl port-forward service/beer-catalogue-api 8080:8080
+```
+
+Test the API with `curl http://localhost:8080/api/beers`.
+
+- Swagger UI: http://localhost:8080/swagger-ui/index.html
+
+Cleanup:
+
+```bash
+kubectl delete -f k8s/
+eval $(minikube docker-env -u)
+```
