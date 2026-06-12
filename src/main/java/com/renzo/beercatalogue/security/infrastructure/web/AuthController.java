@@ -17,6 +17,6 @@ public class AuthController {
 
     @PostMapping("/login")
     public LoginResponse login(@Valid @RequestBody LoginRequest request) {
-        return authService.login(request.username(), request.password());
+        return new LoginResponse(authService.login(request.username(), request.password()), "Bearer");
     }
 }
