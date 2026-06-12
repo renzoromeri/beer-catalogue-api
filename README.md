@@ -41,3 +41,15 @@ To authorize in Swagger:
 2. Copy the returned `accessToken`.
 3. Click **Authorize**.
 4. Paste the token as the Bearer token requested by the UI.
+
+## Run with Docker Compose
+
+The JWT secret in `docker-compose.yml` is for local development only.
+
+```bash
+./mvnw clean test
+docker compose up --build
+```
+
+- API: http://localhost:8080
+- Swagger UI: http://localhost:8080/swagger-ui/index.html
