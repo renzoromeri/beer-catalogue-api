@@ -1,5 +1,6 @@
 package com.renzo.beercatalogue.beer.infrastructure.web;
 
+import com.renzo.beercatalogue.beer.application.BeerQueryCriteria;
 import com.renzo.beercatalogue.beer.domain.Beer;
 
 final class BeerWebMapper {
@@ -36,6 +37,20 @@ final class BeerWebMapper {
                 beer.getDescription(),
                 beer.getManufacturerId(),
                 beer.getManufacturerName()
+        );
+    }
+
+    static BeerQueryCriteria toCriteria(BeerQueryRequest request) {
+        return new BeerQueryCriteria(
+                request.name(),
+                request.type(),
+                request.minAbv(),
+                request.maxAbv(),
+                request.manufacturerName(),
+                request.page(),
+                request.size(),
+                request.sortBy(),
+                request.direction()
         );
     }
 }

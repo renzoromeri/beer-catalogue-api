@@ -32,19 +32,20 @@ public class BeerController {
     ) {
         Page<BeerResponse> page = service.list(pageable).map(BeerWebMapper::toResponse);
 
-        return new PageResponse<>(
-                page.getContent(),
-                page.getNumber(),
-                page.getSize(),
-                page.getTotalElements(),
-                page.getTotalPages(),
-                page.isLast()
-        );
+        return toPageResponse(page);
     }
 
     @GetMapping("/{id}")
     public BeerResponse getById(@PathVariable Long id) {
         return BeerWebMapper.toResponse(service.getById(id));
+    }
+
+    @PostMapping("/query")
+    public PageResponse<BeerResponse> query(@Valid @RequestBody BeerQueryRequest request) {
+        Page<BeerResponse> page = service.query(BeerWebMapper.toCriteria(request))
+                .map(BeerWebMapper::toResponse);
+
+        return toPageResponse(page);
     }
 
     @PostMapping
@@ -68,5 +69,16 @@ public class BeerController {
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         service.delete(id);
         return ResponseEntity.noContent().build();
+    }
+
+    private PageResponse<BeerResponse> toPageResponse(Page<BeerResponse> page) {
+        return new PageResponse<>(
+                page.getContent(),
+                page.getNumber(),
+                page.getSize(),
+                page.getTotalElements(),
+                page.getTotalPages(),
+                page.isLast()
+        );
     }
 }
