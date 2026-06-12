@@ -35,13 +35,24 @@ public class DemoDataInitializer implements ApplicationRunner {
     @Override
     @Transactional
     public void run(ApplicationArguments args) {
-        createUserIfMissing("admin", "admin123", Role.ADMIN);
-        createUserIfMissing("guinness_user", "manufacturer123", Role.MANUFACTURER);
-        createUserIfMissing("heineken_user", "manufacturer123", Role.MANUFACTURER);
+        findOrCreateUser("admin", "admin123", Role.ADMIN);
+        UserEntity guinnessUser = findOrCreateUser(
+                "guinness_user",
+                "manufacturer123",
+                Role.MANUFACTURER
+        );
+        UserEntity heinekenUser = findOrCreateUser(
+                "heineken_user",
+                "manufacturer123",
+                Role.MANUFACTURER
+        );
 
-        // Ownership will be linked when manufacturer authorization is implemented.
-        ManufacturerEntity guinness = findOrCreateManufacturer("Guinness", "Ireland");
-        ManufacturerEntity heineken = findOrCreateManufacturer("Heineken", "Netherlands");
+        ManufacturerEntity guinness = findOrCreateManufacturer("Guinness", "Ireland", guinnessUser);
+        ManufacturerEntity heineken = findOrCreateManufacturer(
+                "Heineken",
+                "Netherlands",
+                heinekenUser
+        );
 
         createBeerIfMissing(
                 "Guinness Draught",
@@ -59,25 +70,29 @@ public class DemoDataInitializer implements ApplicationRunner {
         );
     }
 
-    private void createUserIfMissing(String username, String password, Role role) {
-        if (userRepository.existsByUsername(username)) {
-            return;
-        }
-
-        userRepository.save(UserEntity.builder()
-                .username(username)
-                .password(passwordEncoder.encode(password))
-                .role(role)
-                .enabled(true)
-                .build());
+    private UserEntity findOrCreateUser(String username, String password, Role role) {
+        return userRepository.findByUsername(username)
+                .orElseGet(() -> userRepository.save(UserEntity.builder()
+                        .username(username)
+                        .password(passwordEncoder.encode(password))
+                        .role(role)
+                        .enabled(true)
+                        .build()));
     }
 
-    private ManufacturerEntity findOrCreateManufacturer(String name, String countryOfOrigin) {
-        return manufacturerRepository.findByNameIgnoreCase(name)
-                .orElseGet(() -> manufacturerRepository.save(ManufacturerEntity.builder()
+    private ManufacturerEntity findOrCreateManufacturer(
+            String name,
+            String countryOfOrigin,
+            UserEntity owner
+    ) {
+        ManufacturerEntity manufacturer = manufacturerRepository.findByNameIgnoreCase(name)
+                .orElseGet(() -> ManufacturerEntity.builder()
                         .name(name)
                         .countryOfOrigin(countryOfOrigin)
-                        .build()));
+                        .build());
+
+        manufacturer.setOwner(owner);
+        return manufacturerRepository.save(manufacturer);
     }
 
     private void createBeerIfMissing(

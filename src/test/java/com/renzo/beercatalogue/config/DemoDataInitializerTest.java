@@ -42,5 +42,17 @@ class DemoDataInitializerTest {
                 "admin123",
                 userRepository.findByUsername("admin").orElseThrow().getPassword()
         )).isTrue();
+        assertThat(
+                manufacturerRepository.findByNameIgnoreCase("Guinness")
+                        .orElseThrow()
+                        .getOwner()
+                        .getUsername()
+        ).isEqualTo("guinness_user");
+        assertThat(
+                manufacturerRepository.findByNameIgnoreCase("Heineken")
+                        .orElseThrow()
+                        .getOwner()
+                        .getUsername()
+        ).isEqualTo("heineken_user");
     }
 }

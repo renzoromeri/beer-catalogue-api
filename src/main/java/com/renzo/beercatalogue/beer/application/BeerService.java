@@ -7,6 +7,7 @@ import com.renzo.beercatalogue.common.exception.ConflictException;
 import com.renzo.beercatalogue.common.exception.ResourceNotFoundException;
 import com.renzo.beercatalogue.manufacturer.infrastructure.persistence.ManufacturerEntity;
 import com.renzo.beercatalogue.manufacturer.infrastructure.persistence.ManufacturerJpaRepository;
+import com.renzo.beercatalogue.security.application.OwnershipAuthorizationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -19,6 +20,7 @@ public class BeerService {
 
     private final BeerJpaRepository beerRepository;
     private final ManufacturerJpaRepository manufacturerRepository;
+    private final OwnershipAuthorizationService authorizationService;
 
     @Transactional(readOnly = true)
     public Page<Beer> list(Pageable pageable) {
@@ -33,6 +35,7 @@ public class BeerService {
     @Transactional
     public Beer create(Beer beer) {
         ManufacturerEntity manufacturer = findManufacturerById(beer.getManufacturerId());
+        authorizationService.requireCanManageManufacturer(manufacturer);
         validateUniqueName(beer.getName(), manufacturer.getId());
 
         BeerEntity saved = beerRepository.save(BeerMapper.toEntity(beer, manufacturer));
@@ -42,7 +45,9 @@ public class BeerService {
     @Transactional
     public Beer update(Long id, Beer beer) {
         BeerEntity existing = findBeerById(id);
+        authorizationService.requireCanManageBeer(existing);
         ManufacturerEntity manufacturer = findManufacturerById(beer.getManufacturerId());
+        authorizationService.requireCanManageManufacturer(manufacturer);
 
         if (beerRepository.existsByNameIgnoreCaseAndManufacturerIdAndIdNot(
                 beer.getName(),
@@ -64,6 +69,7 @@ public class BeerService {
     @Transactional
     public void delete(Long id) {
         BeerEntity existing = findBeerById(id);
+        authorizationService.requireCanManageBeer(existing);
         beerRepository.delete(existing);
     }
 

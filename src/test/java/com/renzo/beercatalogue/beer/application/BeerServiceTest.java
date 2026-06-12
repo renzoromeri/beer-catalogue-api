@@ -15,6 +15,7 @@ import com.renzo.beercatalogue.common.exception.ConflictException;
 import com.renzo.beercatalogue.common.exception.ResourceNotFoundException;
 import com.renzo.beercatalogue.manufacturer.infrastructure.persistence.ManufacturerEntity;
 import com.renzo.beercatalogue.manufacturer.infrastructure.persistence.ManufacturerJpaRepository;
+import com.renzo.beercatalogue.security.application.OwnershipAuthorizationService;
 import java.math.BigDecimal;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
@@ -32,11 +33,14 @@ class BeerServiceTest {
     @Mock
     private ManufacturerJpaRepository manufacturerRepository;
 
+    @Mock
+    private OwnershipAuthorizationService authorizationService;
+
     private BeerService service;
 
     @BeforeEach
     void setUp() {
-        service = new BeerService(beerRepository, manufacturerRepository);
+        service = new BeerService(beerRepository, manufacturerRepository, authorizationService);
     }
 
     @Test
@@ -53,6 +57,7 @@ class BeerServiceTest {
 
         assertThat(result.getId()).isEqualTo(10L);
         assertThat(result.getManufacturerName()).isEqualTo("Guinness");
+        verify(authorizationService).requireCanManageManufacturer(manufacturer);
     }
 
     @Test
@@ -112,6 +117,8 @@ class BeerServiceTest {
 
         assertThat(result.getName()).isEqualTo("Heineken Lager");
         assertThat(result.getManufacturerId()).isEqualTo(2L);
+        verify(authorizationService).requireCanManageBeer(existing);
+        verify(authorizationService).requireCanManageManufacturer(newManufacturer);
         verify(beerRepository).save(existing);
     }
 
@@ -122,6 +129,7 @@ class BeerServiceTest {
 
         service.delete(10L);
 
+        verify(authorizationService).requireCanManageBeer(existing);
         verify(beerRepository).delete(existing);
     }
 

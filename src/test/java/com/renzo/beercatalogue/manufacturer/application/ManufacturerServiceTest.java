@@ -13,6 +13,7 @@ import com.renzo.beercatalogue.common.exception.ResourceNotFoundException;
 import com.renzo.beercatalogue.manufacturer.domain.Manufacturer;
 import com.renzo.beercatalogue.manufacturer.infrastructure.persistence.ManufacturerEntity;
 import com.renzo.beercatalogue.manufacturer.infrastructure.persistence.ManufacturerJpaRepository;
+import com.renzo.beercatalogue.security.application.OwnershipAuthorizationService;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,11 +30,14 @@ class ManufacturerServiceTest {
     @Mock
     private BeerJpaRepository beerRepository;
 
+    @Mock
+    private OwnershipAuthorizationService authorizationService;
+
     private ManufacturerService service;
 
     @BeforeEach
     void setUp() {
-        service = new ManufacturerService(repository, beerRepository);
+        service = new ManufacturerService(repository, beerRepository, authorizationService);
     }
 
     @Test
@@ -47,6 +51,7 @@ class ManufacturerServiceTest {
 
         assertThat(result.getId()).isEqualTo(1L);
         assertThat(result.getName()).isEqualTo("Guinness");
+        verify(authorizationService).requireAdmin();
     }
 
     @Test
@@ -87,6 +92,7 @@ class ManufacturerServiceTest {
         Manufacturer result = service.update(1L, update);
 
         assertThat(result.getName()).isEqualTo("Guinness");
+        verify(authorizationService).requireCanManageManufacturer(existing);
         verify(repository).save(existing);
     }
 
@@ -98,6 +104,7 @@ class ManufacturerServiceTest {
 
         service.delete(1L);
 
+        verify(authorizationService).requireAdmin();
         verify(repository).delete(existing);
     }
 
