@@ -1,5 +1,6 @@
 package com.renzo.beercatalogue.manufacturer.application;
 
+import com.renzo.beercatalogue.beer.infrastructure.persistence.BeerJpaRepository;
 import com.renzo.beercatalogue.common.exception.ConflictException;
 import com.renzo.beercatalogue.common.exception.ResourceNotFoundException;
 import com.renzo.beercatalogue.manufacturer.domain.Manufacturer;
@@ -16,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class ManufacturerService {
 
     private final ManufacturerJpaRepository repository;
+    private final BeerJpaRepository beerRepository;
 
     @Transactional(readOnly = true)
     public Page<Manufacturer> list(Pageable pageable) {
@@ -54,6 +56,11 @@ public class ManufacturerService {
     @Transactional
     public void delete(Long id) {
         ManufacturerEntity existing = findEntityById(id);
+
+        if (beerRepository.existsByManufacturerId(id)) {
+            throw new ConflictException("Manufacturer cannot be deleted because it has associated beers");
+        }
+
         repository.delete(existing);
     }
 

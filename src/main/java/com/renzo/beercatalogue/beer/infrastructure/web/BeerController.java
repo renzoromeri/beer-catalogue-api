@@ -1,0 +1,72 @@
+package com.renzo.beercatalogue.beer.infrastructure.web;
+
+import com.renzo.beercatalogue.beer.application.BeerService;
+import com.renzo.beercatalogue.beer.domain.Beer;
+import com.renzo.beercatalogue.common.pagination.PageResponse;
+import jakarta.validation.Valid;
+import java.net.URI;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequestMapping("/api/beers")
+@RequiredArgsConstructor
+public class BeerController {
+
+    private final BeerService service;
+
+    @GetMapping
+    public PageResponse<BeerResponse> list(
+            @PageableDefault(size = 10, sort = "name") Pageable pageable
+    ) {
+        Page<BeerResponse> page = service.list(pageable).map(BeerWebMapper::toResponse);
+
+        return new PageResponse<>(
+                page.getContent(),
+                page.getNumber(),
+                page.getSize(),
+                page.getTotalElements(),
+                page.getTotalPages(),
+                page.isLast()
+        );
+    }
+
+    @GetMapping("/{id}")
+    public BeerResponse getById(@PathVariable Long id) {
+        return BeerWebMapper.toResponse(service.getById(id));
+    }
+
+    @PostMapping
+    public ResponseEntity<BeerResponse> create(@Valid @RequestBody BeerCreateRequest request) {
+        Beer created = service.create(BeerWebMapper.toDomain(request));
+
+        return ResponseEntity
+                .created(URI.create("/api/beers/" + created.getId()))
+                .body(BeerWebMapper.toResponse(created));
+    }
+
+    @PutMapping("/{id}")
+    public BeerResponse update(
+            @PathVariable Long id,
+            @Valid @RequestBody BeerUpdateRequest request
+    ) {
+        return BeerWebMapper.toResponse(service.update(id, BeerWebMapper.toDomain(request)));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        service.delete(id);
+        return ResponseEntity.noContent().build();
+    }
+}

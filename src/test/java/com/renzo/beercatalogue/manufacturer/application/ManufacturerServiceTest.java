@@ -7,6 +7,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.renzo.beercatalogue.beer.infrastructure.persistence.BeerJpaRepository;
 import com.renzo.beercatalogue.common.exception.ConflictException;
 import com.renzo.beercatalogue.common.exception.ResourceNotFoundException;
 import com.renzo.beercatalogue.manufacturer.domain.Manufacturer;
@@ -25,11 +26,14 @@ class ManufacturerServiceTest {
     @Mock
     private ManufacturerJpaRepository repository;
 
+    @Mock
+    private BeerJpaRepository beerRepository;
+
     private ManufacturerService service;
 
     @BeforeEach
     void setUp() {
-        service = new ManufacturerService(repository);
+        service = new ManufacturerService(repository, beerRepository);
     }
 
     @Test
@@ -87,13 +91,36 @@ class ManufacturerServiceTest {
     }
 
     @Test
-    void shouldDeleteManufacturer() {
+    void shouldDeleteManufacturerWithoutBeers() {
         ManufacturerEntity existing = entity(1L, "Guinness", "Ireland");
         when(repository.findById(1L)).thenReturn(Optional.of(existing));
+        when(beerRepository.existsByManufacturerId(1L)).thenReturn(false);
 
         service.delete(1L);
 
         verify(repository).delete(existing);
+    }
+
+    @Test
+    void shouldRejectDeleteWhenManufacturerDoesNotExist() {
+        when(repository.findById(99L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> service.delete(99L))
+                .isInstanceOf(ResourceNotFoundException.class);
+        verify(beerRepository, never()).existsByManufacturerId(any());
+        verify(repository, never()).delete(any());
+    }
+
+    @Test
+    void shouldRejectDeleteWhenManufacturerHasBeers() {
+        ManufacturerEntity existing = entity(1L, "Guinness", "Ireland");
+        when(repository.findById(1L)).thenReturn(Optional.of(existing));
+        when(beerRepository.existsByManufacturerId(1L)).thenReturn(true);
+
+        assertThatThrownBy(() -> service.delete(1L))
+                .isInstanceOf(ConflictException.class)
+                .hasMessageContaining("associated beers");
+        verify(repository, never()).delete(any());
     }
 
     private Manufacturer manufacturer(Long id, String name, String countryOfOrigin) {
