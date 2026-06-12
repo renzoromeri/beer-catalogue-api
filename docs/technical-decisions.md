@@ -32,6 +32,16 @@ These are lightweight working decisions and may evolve during implementation.
 - Listing endpoints use `page`, `size`, and `sort` query parameters.
 - Advanced beer search uses `POST /api/beers/query`.
 
+## SOLID, good practices and performance
+
+- Follow SOLID pragmatically, not dogmatically.
+- Separate web, application, domain, and persistence concerns.
+- Keep business logic in a testable service layer.
+- Use DTOs to protect the API contract from persistence details.
+- Use pagination, controlled sorting, and query endpoints to avoid loading
+  unnecessary data.
+- Make performance decisions pragmatically for the scope of the challenge.
+
 ## Current Trade-offs
 
 - Picture upload is optional if time allows.
