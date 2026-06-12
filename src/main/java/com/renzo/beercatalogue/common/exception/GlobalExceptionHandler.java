@@ -25,8 +25,7 @@ public class GlobalExceptionHandler {
                 .stream()
                 .map(error -> new FieldErrorResponse(
                         error.getField(),
-                        error.getDefaultMessage(),
-                        error.getRejectedValue()
+                        error.getDefaultMessage()
                 ))
                 .toList();
 
