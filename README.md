@@ -77,3 +77,21 @@ Cleanup:
 kubectl delete -f k8s/
 eval $(minikube docker-env -u)
 ```
+
+## Postman
+
+Import the collection and environment from `api-client/postman/`.
+
+Suggested manual flow:
+
+1. Start the app with local demo data enabled.
+2. Import the collection and environment.
+3. Select the `Beer Catalogue Local` environment.
+4. Run `Auth / Login Admin`.
+5. Run `Auth / Login Guinness Manufacturer`.
+6. Run `Auth / Login Heineken Manufacturer`.
+7. Run `Manufacturers / Get Manufacturers`.
+8. Run `Beers / Get Beers`.
+
+Tokens and demo IDs are then automatically available for the remaining
+requests.
