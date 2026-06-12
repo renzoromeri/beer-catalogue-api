@@ -88,6 +88,14 @@ class BeerCatalogueApiIntegrationTest {
     }
 
     @Test
+    void openApiDocsShouldBeAccessibleWithoutAuthentication() throws Exception {
+        mockMvc.perform(get("/v3/api-docs"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.info.title").value("Beer Catalogue API"))
+                .andExpect(jsonPath("$.components.securitySchemes.bearerAuth").exists());
+    }
+
+    @Test
     void validAdminLoginShouldReturnAccessToken() throws Exception {
         mockMvc.perform(jsonPost("/api/auth/login", loginBody("admin", "admin123")))
                 .andExpect(status().isOk())

@@ -15,7 +15,8 @@ A Spring Boot backend for a Beer Catalogue API technical challenge.
 
 ## Current Status
 
-Initial project setup only. Domain models, JWT logic, and API controllers are not implemented yet.
+Beer and manufacturer management, JWT authentication, authorization, and API
+documentation are implemented.
 
 ## Run Tests
 
@@ -28,3 +29,15 @@ mvn clean test
 ```bash
 mvn spring-boot:run -Dspring-boot.run.profiles=local
 ```
+
+## API Documentation
+
+- Swagger UI: http://localhost:8080/swagger-ui/index.html
+- OpenAPI docs: http://localhost:8080/v3/api-docs
+
+To authorize in Swagger:
+
+1. Call `POST /api/auth/login`.
+2. Copy the returned `accessToken`.
+3. Click **Authorize**.
+4. Paste the token as the Bearer token requested by the UI.

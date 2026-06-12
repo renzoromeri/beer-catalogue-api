@@ -3,6 +3,8 @@ package com.renzo.beercatalogue.manufacturer.infrastructure.web;
 import com.renzo.beercatalogue.common.pagination.PageResponse;
 import com.renzo.beercatalogue.manufacturer.application.ManufacturerService;
 import com.renzo.beercatalogue.manufacturer.domain.Manufacturer;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.net.URI;
 import lombok.RequiredArgsConstructor;
@@ -22,11 +24,13 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/manufacturers")
 @RequiredArgsConstructor
+@Tag(name = "Manufacturers")
 public class ManufacturerController {
 
     private final ManufacturerService service;
 
     @GetMapping
+    @Operation(summary = "List manufacturers", security = {})
     public PageResponse<ManufacturerResponse> list(
             @PageableDefault(size = 10, sort = "name") Pageable pageable
     ) {
@@ -44,11 +48,13 @@ public class ManufacturerController {
     }
 
     @GetMapping("/{id}")
+    @Operation(summary = "Get a manufacturer by id", security = {})
     public ManufacturerResponse getById(@PathVariable Long id) {
         return ManufacturerWebMapper.toResponse(service.getById(id));
     }
 
     @PostMapping
+    @Operation(summary = "Create a manufacturer")
     public ResponseEntity<ManufacturerResponse> create(
             @Valid @RequestBody ManufacturerCreateRequest request
     ) {
@@ -60,6 +66,7 @@ public class ManufacturerController {
     }
 
     @PutMapping("/{id}")
+    @Operation(summary = "Update a manufacturer")
     public ManufacturerResponse update(
             @PathVariable Long id,
             @Valid @RequestBody ManufacturerUpdateRequest request
@@ -70,6 +77,7 @@ public class ManufacturerController {
     }
 
     @DeleteMapping("/{id}")
+    @Operation(summary = "Delete a manufacturer")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         service.delete(id);
         return ResponseEntity.noContent().build();
