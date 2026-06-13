@@ -52,6 +52,29 @@ See [Architecture](docs/ARCHITECTURE.md) and
 
 Maven does not need to be installed because the Maven Wrapper is included.
 
+## Command Notes
+
+Most examples use macOS/Linux shell syntax. Windows PowerShell users should use
+`.\mvnw.cmd` instead of `./mvnw`, may need `curl.exe` because `curl` can be an
+alias for a PowerShell web request command, and should use
+`minikube docker-env | Invoke-Expression` instead of
+`eval $(minikube docker-env)`. See [Deployment](docs/DEPLOYMENT.md) for detailed
+OS-specific command differences.
+
+macOS/Linux:
+
+```bash
+./mvnw clean test
+./mvnw spring-boot:run -Dspring-boot.run.profiles=local
+```
+
+Windows PowerShell:
+
+```powershell
+.\mvnw.cmd clean test
+.\mvnw.cmd spring-boot:run "-Dspring-boot.run.profiles=local"
+```
+
 ## Quick Start
 
 ```bash

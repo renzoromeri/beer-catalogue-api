@@ -10,6 +10,52 @@
 
 Maven is not required because the repository includes the Maven Wrapper.
 
+## macOS/Linux vs Windows Command Reference
+
+The setup steps are the same across operating systems, but some shell commands
+use different syntax.
+
+### Maven Wrapper
+
+| Task | macOS/Linux | Windows PowerShell |
+| --- | --- | --- |
+| Run tests | `./mvnw clean test` | `.\mvnw.cmd clean test` |
+| Run locally | `./mvnw spring-boot:run -Dspring-boot.run.profiles=local` | `.\mvnw.cmd spring-boot:run "-Dspring-boot.run.profiles=local"` |
+
+### Docker Compose
+
+| Task | macOS/Linux | Windows PowerShell |
+| --- | --- | --- |
+| Start | `docker compose up --build` | `docker compose up --build` |
+| Stop | `docker compose down` | `docker compose down` |
+| Check Docker | `docker ps` | `docker ps` |
+
+### Minikube
+
+| Task | macOS/Linux | Windows PowerShell |
+| --- | --- | --- |
+| Start Minikube | `minikube start --driver=docker` | `minikube start --driver=docker` |
+| Use Minikube Docker daemon | `eval $(minikube docker-env)` | `minikube docker-env \| Invoke-Expression` |
+| Reset Docker daemon | `eval $(minikube docker-env -u)` | `minikube docker-env -u \| Invoke-Expression` |
+| Build image | `docker build -t beer-catalogue-api:latest .` | `docker build -t beer-catalogue-api:latest .` |
+| Apply manifests | `kubectl apply -f k8s/` | `kubectl apply -f k8s/` |
+| Port-forward service | `kubectl port-forward service/beer-catalogue-api 8080:8080` | `kubectl port-forward service/beer-catalogue-api 8080:8080` |
+
+### Environment Variables
+
+| Task | macOS/Linux | Windows PowerShell |
+| --- | --- | --- |
+| Set variable | `export JWT_SECRET=local-secret` | `$env:JWT_SECRET="local-secret"` |
+
+### curl
+
+On Windows PowerShell, `curl` may be an alias for `Invoke-WebRequest`. If a
+documented curl example behaves differently, use `curl.exe` explicitly:
+
+```powershell
+curl.exe -i http://localhost:8080/api/beers
+```
+
 ## Local Execution
 
 ```bash
