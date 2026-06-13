@@ -532,7 +532,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"manufacturerName\": \"Guinness\",\n  \"page\": 0,\n  \"size\": 10,\n  \"sortBy\": \"name\",\n  \"direction\": \"ASC\"\n}",
+              "raw": "{\n  \"name\": \"Guinness\",\n  \"type\": \"STOUT\",\n  \"minAbv\": 4.0,\n  \"maxAbv\": 8.0,\n  \"manufacturerName\": \"Guinness\",\n  \"page\": 0,\n  \"size\": 10,\n  \"sortBy\": \"name\",\n  \"direction\": \"ASC\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
