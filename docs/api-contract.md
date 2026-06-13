@@ -1,6 +1,7 @@
-# Planned API Contract
+# API Contract
 
-This contract describes the initial plan and may evolve during implementation.
+This document summarizes the implemented API contract. Practical request
+examples are available in [API usage](API.md).
 
 ## Authentication
 
@@ -29,7 +30,7 @@ This contract describes the initial plan and may evolve during implementation.
 - Manufacturer users can manage only their own manufacturer and beers.
 - Admin users can manage everything.
 
-## Planned Demo Users
+## Demo Users
 
 | Username | Password |
 | --- | --- |
@@ -41,12 +42,33 @@ Demo credentials are for local and test use only.
 
 ## Search Examples
 
+List endpoints use Spring Pageable query parameters. Page numbering starts at
+zero, and sort uses `property,asc` or `property,desc`:
+
 ```http
 GET /api/beers?page=0&size=10&sort=name,asc
+GET /api/beers?page=0&size=10&sort=name,desc
+GET /api/beers?page=0&size=10&sort=abv,desc
 GET /api/manufacturers?page=0&size=10&sort=name,asc
+GET /api/manufacturers?page=0&size=10&sort=name,desc
 ```
 
-Advanced beer search:
+All advanced beer-search filters are optional. Omitted or `null` filters are
+not applied. Empty or blank `name` and `manufacturerName` values are also not
+applied. `{}` is valid and uses these defaults:
+
+- `page`: `0`
+- `size`: `10`
+- `sortBy`: `name`
+- `direction`: `ASC`
+
+Valid `sortBy` values are `name`, `abv`, `type`, and `manufacturerName`.
+Valid JSON `direction` values are `ASC` and `DESC`.
+
+Valid `BeerType` values are `IPA`, `LAGER`, `STOUT`, `PILSNER`, `WHEAT`,
+`PALE_ALE`, `PORTER`, `SOUR`, and `OTHER`.
+
+Advanced combined beer search:
 
 ```http
 POST /api/beers/query
@@ -60,12 +82,10 @@ Content-Type: application/json
   "manufacturerName": "Guinness",
   "page": 0,
   "size": 10,
-  "sortBy": "name",
-  "direction": "asc"
+  "sortBy": "abv",
+  "direction": "DESC"
 }
 ```
-
-All advanced-search fields are optional.
 
 ## Response Strategy
 

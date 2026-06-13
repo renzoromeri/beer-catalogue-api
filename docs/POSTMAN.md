@@ -54,9 +54,29 @@ returns `400 Bad Request`.
 
 ### Beer Query
 
-Run `Beers / Query Beers` without authentication. Adjust optional filters such
-as name, type, ABV range, manufacturer name, page, size, sort field, and
-direction. A successful query returns `200 OK` with a paginated response.
+The `Beers` folder includes recommended query, pagination, and sorting cases:
+
+- `Query Beers - No Filters`
+- `Query Beers - Empty Body Defaults`
+- `Query Beers - Null Filters`
+- `Query Beers - Filter by Type`
+- `Query Beers - Filter by ABV Range`
+- `Query Beers - Filter by Manufacturer`
+- `Query Beers - Sort by ABV DESC`
+- `Query Beers - Combined Filters`
+- `Get Beers - Sort Name ASC`
+- `Get Beers - Sort Name DESC`
+
+The `Manufacturers` folder includes:
+
+- `Get Manufacturers - Sort Name DESC`
+
+Run these requests without authentication. Query filters may be omitted or sent
+as `null`; blank `name` and `manufacturerName` values also do not apply a
+filter. The `Empty Body Defaults` case sends `{}`; a truly absent HTTP body is
+not valid. JSON query directions use `ASC` and `DESC`. A successful request
+returns `200 OK` with a paginated response. See [API usage](API.md) for the
+full query contract and valid values.
 
 ### Beer Picture Upload and Retrieval
 
