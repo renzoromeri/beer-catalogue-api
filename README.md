@@ -130,7 +130,8 @@ secret options, and persistence trade-offs are in
 - OpenAPI JSON: http://localhost:8080/v3/api-docs
 
 Use `POST /api/auth/login` to obtain a token, then authorize in Swagger with
-that bearer token. Practical examples are available in [API usage](docs/API.md).
+that bearer token. Search, filtering, pagination, sorting, and other practical
+examples are available in [API usage](docs/API.md).
 
 ## Demo Users
 

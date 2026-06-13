@@ -245,6 +245,40 @@
           }
         },
         {
+          "name": "Get Manufacturers - Sort Name DESC",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/manufacturers?page=0&size=10&sort=name,desc",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "manufacturers"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "10"
+                },
+                {
+                  "key": "sort",
+                  "value": "name,desc"
+                }
+              ]
+            }
+          }
+        },
+        {
           "name": "Get Manufacturer",
           "request": {
             "auth": {
@@ -497,6 +531,74 @@
           }
         },
         {
+          "name": "Get Beers - Sort Name ASC",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/beers?page=0&size=10&sort=name,asc",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "beers"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "10"
+                },
+                {
+                  "key": "sort",
+                  "value": "name,asc"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Beers - Sort Name DESC",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/beers?page=0&size=10&sort=name,desc",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "beers"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "10"
+                },
+                {
+                  "key": "sort",
+                  "value": "name,desc"
+                }
+              ]
+            }
+          }
+        },
+        {
           "name": "Get Beer",
           "request": {
             "auth": {
@@ -518,7 +620,7 @@
           }
         },
         {
-          "name": "Query Beers",
+          "name": "Query Beers - No Filters",
           "request": {
             "auth": {
               "type": "noauth"
@@ -532,7 +634,252 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Guinness\",\n  \"type\": \"STOUT\",\n  \"minAbv\": 4.0,\n  \"maxAbv\": 8.0,\n  \"manufacturerName\": \"Guinness\",\n  \"page\": 0,\n  \"size\": 10,\n  \"sortBy\": \"name\",\n  \"direction\": \"ASC\"\n}",
+              "raw": "{\n  \"page\": 0,\n  \"size\": 10,\n  \"sortBy\": \"name\",\n  \"direction\": \"ASC\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/beers/query",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "beers",
+                "query"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Query Beers - Empty Body Defaults",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/beers/query",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "beers",
+                "query"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Query Beers - Null Filters",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": null,\n  \"type\": null,\n  \"minAbv\": null,\n  \"maxAbv\": null,\n  \"manufacturerName\": null,\n  \"page\": 0,\n  \"size\": 10,\n  \"sortBy\": \"name\",\n  \"direction\": \"ASC\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/beers/query",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "beers",
+                "query"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Query Beers - Filter by Type",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"IPA\",\n  \"page\": 0,\n  \"size\": 10,\n  \"sortBy\": \"name\",\n  \"direction\": \"ASC\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/beers/query",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "beers",
+                "query"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Query Beers - Filter by ABV Range",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"minAbv\": 4.0,\n  \"maxAbv\": 8.0,\n  \"page\": 0,\n  \"size\": 10,\n  \"sortBy\": \"abv\",\n  \"direction\": \"DESC\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/beers/query",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "beers",
+                "query"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Query Beers - Filter by Manufacturer",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"manufacturerName\": \"Guinness\",\n  \"page\": 0,\n  \"size\": 10,\n  \"sortBy\": \"manufacturerName\",\n  \"direction\": \"ASC\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/beers/query",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "beers",
+                "query"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Query Beers - Sort by ABV DESC",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"page\": 0,\n  \"size\": 10,\n  \"sortBy\": \"abv\",\n  \"direction\": \"DESC\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/beers/query",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "beers",
+                "query"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Query Beers - Combined Filters",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"stout\",\n  \"type\": \"STOUT\",\n  \"minAbv\": 4.0,\n  \"maxAbv\": 8.0,\n  \"manufacturerName\": \"Guinness\",\n  \"page\": 0,\n  \"size\": 10,\n  \"sortBy\": \"abv\",\n  \"direction\": \"DESC\"\n}",
               "options": {
                 "raw": {
                   "language": "json"

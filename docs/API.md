@@ -36,13 +36,185 @@ with `Authorization: Bearer <token>`.
 | `PUT` | `/api/manufacturers/{id}` | Authenticated owner/admin | Update manufacturer |
 | `DELETE` | `/api/manufacturers/{id}` | Admin | Delete manufacturer |
 
-## Beer Examples
+## Search, Filtering, Pagination, and Sorting
 
-List with pagination and sorting:
+### List Endpoints
+
+`GET /api/beers` and `GET /api/manufacturers` use Spring Pageable query
+parameters:
+
+- `page`: zero-based page number; default `0`
+- `size`: number of items per page; default `10`
+- `sort`: property and direction in the format `property,asc` or
+  `property,desc`; default `name,asc`
+
+Documented sort properties are `name`, `abv`, and `type` for beers, and `name`
+and `countryOfOrigin` for manufacturers. `manufacturerName` is a supported
+`sortBy` value for `POST /api/beers/query`, not a Pageable property for
+`GET /api/beers`.
+
+The direction in Pageable URL parameters is conventionally lowercase. Examples:
+
+```http
+GET /api/beers?page=0&size=10&sort=name,asc
+GET /api/beers?page=0&size=10&sort=name,desc
+GET /api/beers?page=0&size=10&sort=abv,desc
+GET /api/manufacturers?page=0&size=10&sort=name,asc
+GET /api/manufacturers?page=0&size=10&sort=name,desc
+```
+
+Equivalent curl examples:
 
 ```bash
-curl 'http://localhost:8080/api/beers?page=0&size=10&sort=name,asc'
+curl 'http://localhost:8080/api/beers?page=0&size=10&sort=name,desc'
+curl 'http://localhost:8080/api/manufacturers?page=0&size=10&sort=name,desc'
 ```
+
+### Flexible Beer Query
+
+`POST /api/beers/query` accepts optional filters plus pagination and sorting in
+its JSON body. Filters can be combined and are applied in the database.
+
+| Field | Behavior |
+| --- | --- |
+| `name` | Case-insensitive partial match |
+| `type` | Exact `BeerType` match |
+| `minAbv` | Inclusive minimum ABV |
+| `maxAbv` | Inclusive maximum ABV |
+| `manufacturerName` | Case-insensitive partial manufacturer-name match |
+
+Every filter is optional. To avoid applying a filter, omit its field or send it
+as `null`. For `name` and `manufacturerName`, an empty or blank string also
+does not apply a filter.
+
+An empty JSON object `{}` is valid and applies all defaults. A truly absent
+HTTP request body is not valid because the endpoint requires a JSON body.
+
+```json
+{}
+```
+
+Query defaults:
+
+| Field | Default |
+| --- | --- |
+| `page` | `0` |
+| `size` | `10` |
+| `sortBy` | `name` |
+| `direction` | `ASC` |
+
+Valid `sortBy` values are `name`, `abv`, `type`, and `manufacturerName`.
+Valid JSON `direction` values are `ASC` and `DESC`.
+
+Valid `BeerType` values are:
+
+`IPA`, `LAGER`, `STOUT`, `PILSNER`, `WHEAT`, `PALE_ALE`, `PORTER`, `SOUR`,
+and `OTHER`.
+
+No filters with explicit pagination and sorting:
+
+```json
+{
+  "page": 0,
+  "size": 10,
+  "sortBy": "name",
+  "direction": "ASC"
+}
+```
+
+No filters using `null`:
+
+```json
+{
+  "name": null,
+  "type": null,
+  "minAbv": null,
+  "maxAbv": null,
+  "manufacturerName": null,
+  "page": 0,
+  "size": 10,
+  "sortBy": "name",
+  "direction": "ASC"
+}
+```
+
+Filter by type:
+
+```json
+{
+  "type": "IPA",
+  "page": 0,
+  "size": 10,
+  "sortBy": "name",
+  "direction": "ASC"
+}
+```
+
+Filter by ABV range and sort descending:
+
+```json
+{
+  "minAbv": 4.0,
+  "maxAbv": 8.0,
+  "page": 0,
+  "size": 10,
+  "sortBy": "abv",
+  "direction": "DESC"
+}
+```
+
+Filter by manufacturer:
+
+```json
+{
+  "manufacturerName": "Guinness",
+  "page": 0,
+  "size": 10,
+  "sortBy": "manufacturerName",
+  "direction": "ASC"
+}
+```
+
+Combined search:
+
+```json
+{
+  "name": "stout",
+  "type": "STOUT",
+  "minAbv": 4.0,
+  "maxAbv": 8.0,
+  "manufacturerName": "Guinness",
+  "page": 0,
+  "size": 10,
+  "sortBy": "abv",
+  "direction": "DESC"
+}
+```
+
+Run a query with curl:
+
+```bash
+curl -X POST http://localhost:8080/api/beers/query \
+  -H 'Content-Type: application/json' \
+  -d '{"minAbv":4.0,"maxAbv":8.0,"page":0,"size":10,"sortBy":"abv","direction":"DESC"}'
+```
+
+### Paginated Response
+
+List and query endpoints return:
+
+```json
+{
+  "items": [],
+  "page": 0,
+  "size": 10,
+  "totalElements": 0,
+  "totalPages": 0,
+  "last": true
+}
+```
+
+## Beer Examples
 
 Create a beer:
 
@@ -53,19 +225,7 @@ curl -X POST http://localhost:8080/api/beers \
   -d '{"name":"Punk IPA","abv":5.4,"type":"IPA","description":"Example","manufacturerId":1}'
 ```
 
-Query beers using any combination of optional filters:
-
-```bash
-curl -X POST http://localhost:8080/api/beers/query \
-  -H 'Content-Type: application/json' \
-  -d '{"name":"stout","minAbv":4.0,"maxAbv":8.0,"manufacturerName":"Guinness","page":0,"size":10,"sortBy":"name","direction":"ASC"}'
-```
-
 ## Manufacturer Examples
-
-```bash
-curl 'http://localhost:8080/api/manufacturers?page=0&size=10&sort=name,asc'
-```
 
 ```bash
 curl -X POST http://localhost:8080/api/manufacturers \
@@ -94,24 +254,6 @@ curl http://localhost:8080/api/beers/1/picture --output beer-picture
 ```
 
 Picture retrieval is public. Missing pictures return `404 Not Found`.
-
-## Pagination
-
-List endpoints accept Spring-style `page`, `size`, and `sort` query parameters.
-Page numbering starts at zero. Responses use:
-
-```json
-{
-  "items": [],
-  "page": 0,
-  "size": 10,
-  "totalElements": 0,
-  "totalPages": 0,
-  "last": true
-}
-```
-
-The beer query endpoint accepts pagination and sorting in its JSON body.
 
 ## Errors and Status Codes
 

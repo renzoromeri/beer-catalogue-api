@@ -46,7 +46,11 @@ public class BeerController {
     }
 
     @PostMapping("/query")
-    @Operation(summary = "Query beers with optional filters", security = {})
+    @Operation(
+            summary = "Query beers with optional filters",
+            description = "Omitted or null filters are ignored. Empty JSON objects use pagination and sorting defaults.",
+            security = {}
+    )
     public PageResponse<BeerResponse> query(@Valid @RequestBody BeerQueryRequest request) {
         Page<BeerResponse> page = service.query(BeerWebMapper.toCriteria(request))
                 .map(BeerWebMapper::toResponse);
