@@ -41,7 +41,13 @@ This separation allows a future object-storage adapter without changing the
 controller or picture use cases.
 
 Picture metadata is stored with the beer record; binary content is stored
-outside the database. Replacement and beer deletion remove obsolete files.
+outside the database. The metadata consists of the internal file name, content
+type, and size. Replacement and beer deletion remove obsolete files.
+
+The filesystem adapter is intentionally simple for evaluation. Its storage
+directory is configurable, but the provided Docker and Minikube deployments do
+not make it persistent. A production adapter should use object storage or
+durable mounted storage.
 
 ## Security Boundaries
 

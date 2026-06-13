@@ -96,8 +96,10 @@ kubectl port-forward service/beer-catalogue-api 8080:8080
 ```
 
 The values in `k8s/secret.yaml` are local-development placeholders only and
-must not be used in production. Cleanup commands and troubleshooting guidance
-are in [Deployment](docs/DEPLOYMENT.md).
+are committed only to make Minikube evaluation reproducible. Production
+secrets must not be committed to source control. Cleanup commands, secure
+secret options, and persistence trade-offs are in
+[Deployment](docs/DEPLOYMENT.md).
 
 ## API Documentation
 
@@ -147,7 +149,9 @@ enforced in the service layer so they apply consistently beyond HTTP routing.
 Beer picture metadata is stored in the database while binary content is stored
 on the local filesystem. This is suitable for evaluation, but production
 deployments should replace it with object storage or persistent volumes.
-Docker and Kubernetes examples intentionally remain lightweight.
+H2 data and container-local pictures are ephemeral in the provided Docker and
+Minikube setups. Docker and Kubernetes examples intentionally remain
+lightweight.
 
 See [Technical decisions and trade-offs](docs/DECISIONS.md).
 
@@ -163,8 +167,8 @@ See [Technical decisions and trade-offs](docs/DECISIONS.md).
 ## AI-assisted development disclosure
 
 This project was developed with assistance from ChatGPT and Codex. AI tools
-supported planning, implementation guidance, refactoring, documentation
-drafting, and test strategy.
+were used for planning, implementation guidance, refactoring support,
+documentation drafting, and test strategy.
 All suggested changes were reviewed, adapted, executed, tested, and validated
 by the author. Final design decisions, code ownership, testing, and delivery
 remain the responsibility of the author.
