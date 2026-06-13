@@ -4,6 +4,7 @@
 # Maven
 target/
 .mvn/timing.properties
+/storage/
 
 # IDEs
 .idea/

@@ -743,6 +743,309 @@
               ]
             }
           }
+        },
+        {
+          "name": "Upload Beer Picture as Admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Picture upload succeeds\", function () {",
+                  "    pm.expect([200, 201, 204]).to.include(pm.response.code);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/beers/{{beerId}}/picture",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "beers",
+                "{{beerId}}",
+                "picture"
+              ]
+            },
+            "description": "Select a local image file manually in the form-data file field. Supported content types: image/jpeg, image/png, and image/webp. Maximum size is 1 MB by default."
+          }
+        },
+        {
+          "name": "Upload Beer Picture as Guinness Owner",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Picture upload succeeds\", function () {",
+                  "    pm.expect([200, 201, 204]).to.include(pm.response.code);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{guinnessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/beers/{{beerId}}/picture",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "beers",
+                "{{beerId}}",
+                "picture"
+              ]
+            },
+            "description": "Assumes {{beerId}} belongs to Guinness. Run Beers / Get Beers first and use a Guinness beer id. Select a local image file manually in the form-data file field. Supported content types: image/jpeg, image/png, and image/webp. Maximum size is 1 MB by default."
+          }
+        },
+        {
+          "name": "Upload Beer Picture as Non Owner - Forbidden",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Non-owner upload is forbidden\", function () {",
+                  "    pm.response.to.have.status(403);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{heinekenToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/beers/{{beerId}}/picture",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "beers",
+                "{{beerId}}",
+                "picture"
+              ]
+            },
+            "description": "Assumes {{beerId}} belongs to Guinness and the token belongs to heineken_user. Select a local image file manually in the form-data file field. Supported content types: image/jpeg, image/png, and image/webp. Maximum size is 1 MB by default."
+          }
+        },
+        {
+          "name": "Get Beer Picture",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Picture is returned\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Content-Type is an image\", function () {",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"image/\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/beers/{{beerId}}/picture",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "beers",
+                "{{beerId}}",
+                "picture"
+              ]
+            },
+            "description": "Public endpoint. No authorization is required."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Security Scenarios",
+      "item": [
+        {
+          "name": "Anonymous Upload Beer Picture - Unauthorized",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Anonymous upload is unauthorized\", function () {",
+                  "    pm.response.to.have.status(401);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/beers/{{beerId}}/picture",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "beers",
+                "{{beerId}}",
+                "picture"
+              ]
+            },
+            "description": "Select a local image file manually in the form-data file field. Supported content types: image/jpeg, image/png, and image/webp. Maximum size is 1 MB by default."
+          }
+        },
+        {
+          "name": "Upload Invalid Beer Picture - Bad Request",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Invalid picture is rejected\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "value": "not-an-image",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/beers/{{beerId}}/picture",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "beers",
+                "{{beerId}}",
+                "picture"
+              ]
+            },
+            "description": "Sends an invalid text form-data value and expects a bad request. If your Postman version does not send it as needed, change the file field to File and manually select a .txt file. Valid uploads support image/jpeg, image/png, and image/webp, with a maximum size of 1 MB by default."
+          }
         }
       ]
     }

@@ -1,8 +1,12 @@
 package com.renzo.beercatalogue;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -17,23 +21,41 @@ import com.renzo.beercatalogue.security.domain.Role;
 import com.renzo.beercatalogue.security.infrastructure.persistence.UserEntity;
 import com.renzo.beercatalogue.security.infrastructure.persistence.UserJpaRepository;
 import java.math.BigDecimal;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
+import org.springframework.mock.web.MockMultipartFile;
 
 @ActiveProfiles("test")
 @SpringBootTest
 @AutoConfigureMockMvc
 class BeerCatalogueApiIntegrationTest {
+
+    @TempDir
+    static Path pictureStorageDirectory;
+
+    @DynamicPropertySource
+    static void pictureStorageProperties(DynamicPropertyRegistry registry) {
+        registry.add(
+                "app.storage.beer-pictures-dir",
+                () -> pictureStorageDirectory.toString()
+        );
+    }
 
     @Autowired
     private MockMvc mockMvc;
@@ -55,9 +77,20 @@ class BeerCatalogueApiIntegrationTest {
 
     private ManufacturerEntity guinness;
     private ManufacturerEntity heineken;
+    private BeerEntity guinnessBeer;
+    private BeerEntity heinekenBeer;
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws IOException {
+        try (var files = Files.list(pictureStorageDirectory)) {
+            files.forEach(path -> {
+                try {
+                    Files.deleteIfExists(path);
+                } catch (IOException exception) {
+                    throw new IllegalStateException(exception);
+                }
+            });
+        }
         beerRepository.deleteAll();
         manufacturerRepository.deleteAll();
         userRepository.deleteAll();
@@ -76,8 +109,8 @@ class BeerCatalogueApiIntegrationTest {
 
         guinness = createManufacturer("Guinness", "Ireland", guinnessUser);
         heineken = createManufacturer("Heineken", "Netherlands", heinekenUser);
-        createBeer("Guinness Draught", "4.20", BeerType.STOUT, guinness);
-        createBeer("Heineken Lager", "5.00", BeerType.LAGER, heineken);
+        guinnessBeer = createBeer("Guinness Draught", "4.20", BeerType.STOUT, guinness);
+        heinekenBeer = createBeer("Heineken Lager", "5.00", BeerType.LAGER, heineken);
     }
 
     @Test
@@ -218,6 +251,131 @@ class BeerCatalogueApiIntegrationTest {
                 .andExpect(jsonPath("$.totalPages").value(2));
     }
 
+    @Test
+    void adminShouldUploadPictureForAnyBeerAndPictureShouldBePublic() throws Exception {
+        byte[] picture = "jpeg-content".getBytes();
+
+        mockMvc.perform(withBearer(
+                        pictureUpload(heinekenBeer.getId(), "image/jpeg", picture),
+                        loginAsAdmin()
+                ))
+                .andExpect(status().isNoContent());
+
+        mockMvc.perform(get("/api/beers/{id}/picture", heinekenBeer.getId()))
+                .andExpect(status().isOk())
+                .andExpect(header().string("Content-Type", "image/jpeg"))
+                .andExpect(content().bytes(picture));
+    }
+
+    @Test
+    void ownerManufacturerShouldUploadPictureForOwnBeer() throws Exception {
+        mockMvc.perform(withBearer(
+                        pictureUpload(guinnessBeer.getId(), "image/png", "png-content".getBytes()),
+                        loginAsGuinnessUser()
+                ))
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
+    void nonOwnerManufacturerShouldNotUploadPicture() throws Exception {
+        mockMvc.perform(withBearer(
+                        pictureUpload(heinekenBeer.getId(), "image/webp", "webp-content".getBytes()),
+                        loginAsGuinnessUser()
+                ))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void anonymousUserShouldNotUploadPicture() throws Exception {
+        mockMvc.perform(pictureUpload(
+                        guinnessBeer.getId(),
+                        "image/png",
+                        "png-content".getBytes()
+                ))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void beerWithoutPictureShouldReturnNotFound() throws Exception {
+        mockMvc.perform(get("/api/beers/{id}/picture", guinnessBeer.getId()))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void invalidPictureContentTypeShouldReturnBadRequest() throws Exception {
+        mockMvc.perform(withBearer(
+                        pictureUpload(guinnessBeer.getId(), "text/plain", "not-an-image".getBytes()),
+                        loginAsAdmin()
+                ))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void emptyPictureShouldReturnBadRequest() throws Exception {
+        mockMvc.perform(withBearer(
+                        pictureUpload(guinnessBeer.getId(), "image/png", new byte[0]),
+                        loginAsAdmin()
+                ))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void oversizedPictureShouldReturnBadRequest() throws Exception {
+        byte[] oversizedPicture = new byte[1_048_577];
+
+        mockMvc.perform(withBearer(
+                        pictureUpload(guinnessBeer.getId(), "image/png", oversizedPicture),
+                        loginAsAdmin()
+                ))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void uploadForMissingBeerShouldReturnNotFound() throws Exception {
+        mockMvc.perform(withBearer(
+                        pictureUpload(Long.MAX_VALUE, "image/png", "png-content".getBytes()),
+                        loginAsAdmin()
+                ))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void replacingPictureShouldDeletePreviousFile() throws Exception {
+        String token = loginAsAdmin();
+
+        mockMvc.perform(withBearer(
+                        pictureUpload(guinnessBeer.getId(), "image/png", "first".getBytes()),
+                        token
+                ))
+                .andExpect(status().isNoContent());
+        mockMvc.perform(withBearer(
+                        pictureUpload(guinnessBeer.getId(), "image/webp", "second".getBytes()),
+                        token
+                ))
+                .andExpect(status().isNoContent());
+
+        try (var files = Files.list(pictureStorageDirectory)) {
+            org.assertj.core.api.Assertions.assertThat(files).hasSize(1);
+        }
+    }
+
+    @Test
+    void deletingBeerShouldDeletePictureFile() throws Exception {
+        String token = loginAsAdmin();
+        mockMvc.perform(withBearer(
+                        pictureUpload(guinnessBeer.getId(), "image/png", "picture".getBytes()),
+                        token
+                ))
+                .andExpect(status().isNoContent());
+
+        mockMvc.perform(withBearer(delete("/api/beers/{id}", guinnessBeer.getId()), token))
+                .andExpect(status().isNoContent());
+
+        try (var files = Files.list(pictureStorageDirectory)) {
+            org.assertj.core.api.Assertions.assertThat(files).isEmpty();
+        }
+    }
+
     private String loginAsAdmin() throws Exception {
         return login("admin", "admin123");
     }
@@ -281,6 +439,20 @@ class BeerCatalogueApiIntegrationTest {
                 .content(json(body));
     }
 
+    private MockHttpServletRequestBuilder pictureUpload(
+            Long beerId,
+            String contentType,
+            byte[] content
+    ) {
+        MockMultipartFile file = new MockMultipartFile(
+                "file",
+                "untrusted-name",
+                contentType,
+                content
+        );
+        return multipart("/api/beers/{id}/picture", beerId).file(file);
+    }
+
     private String json(Object value) throws Exception {
         return objectMapper.writeValueAsString(value);
     }
@@ -324,13 +496,13 @@ class BeerCatalogueApiIntegrationTest {
                 .build());
     }
 
-    private void createBeer(
+    private BeerEntity createBeer(
             String name,
             String abv,
             BeerType type,
             ManufacturerEntity manufacturer
     ) {
-        beerRepository.save(BeerEntity.builder()
+        return beerRepository.save(BeerEntity.builder()
                 .name(name)
                 .abv(new BigDecimal(abv))
                 .type(type)

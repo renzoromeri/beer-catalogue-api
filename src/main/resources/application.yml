@@ -12,6 +12,9 @@ spring:
   h2:
     console:
       enabled: false
+  servlet:
+    multipart:
+      max-file-size: ${BEER_PICTURE_MAX_SIZE_BYTES:1048576}B
 
 server:
   port: ${SERVER_PORT:8080}
@@ -23,6 +26,9 @@ app:
       expiration-minutes: ${JWT_EXPIRATION_MINUTES:60}
   init-demo-data:
     enabled: ${INIT_DEMO_DATA_ENABLED:true}
+  storage:
+    beer-pictures-dir: ${BEER_PICTURES_DIR:./storage/beer-pictures}
+    max-file-size-bytes: ${BEER_PICTURE_MAX_SIZE_BYTES:1048576}
 
 ---
 spring:

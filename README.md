@@ -87,11 +87,18 @@ Suggested manual flow:
 1. Start the app with local demo data enabled.
 2. Import the collection and environment.
 3. Select the `Beer Catalogue Local` environment.
-4. Run `Auth / Login Admin`.
-5. Run `Auth / Login Guinness Manufacturer`.
-6. Run `Auth / Login Heineken Manufacturer`.
-7. Run `Manufacturers / Get Manufacturers`.
-8. Run `Beers / Get Beers`.
+4. Run the `Auth` login requests.
+5. Run `Beers / Get Beers`.
+6. Confirm or set `beerId` to the intended beer.
+7. Manually select a local image in an `Upload Beer Picture` request's
+   form-data `file` field, then run it.
+8. Run `Beers / Get Beer Picture`.
 
 Tokens and demo IDs are then automatically available for the remaining
 requests.
+
+## Beer Pictures
+
+Beer pictures are stored on the local filesystem. Docker and Minikube use
+`/app/storage/beer-pictures`; production deployments should use persistent
+storage or object storage.

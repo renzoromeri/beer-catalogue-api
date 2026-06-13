@@ -1,6 +1,7 @@
 package com.renzo.beercatalogue.beer.application;
 
 import com.renzo.beercatalogue.beer.domain.Beer;
+import com.renzo.beercatalogue.beer.application.port.BeerPictureStorage;
 import com.renzo.beercatalogue.beer.infrastructure.persistence.BeerEntity;
 import com.renzo.beercatalogue.beer.infrastructure.persistence.BeerJpaRepository;
 import com.renzo.beercatalogue.beer.infrastructure.persistence.BeerSpecifications;
@@ -27,6 +28,7 @@ public class BeerService {
     private final BeerJpaRepository beerRepository;
     private final ManufacturerJpaRepository manufacturerRepository;
     private final OwnershipAuthorizationService authorizationService;
+    private final BeerPictureStorage pictureStorage;
 
     @Transactional(readOnly = true)
     public Page<Beer> list(Pageable pageable) {
@@ -88,6 +90,7 @@ public class BeerService {
     public void delete(Long id) {
         BeerEntity existing = findBeerById(id);
         authorizationService.requireCanManageBeer(existing);
+        pictureStorage.deleteIfExists(existing.getPictureFileName());
         beerRepository.delete(existing);
     }
 

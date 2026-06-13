@@ -10,3 +10,5 @@ services:
       JWT_SECRET: change-me-docker-secret-key-for-local-development
       JWT_EXPIRATION_MINUTES: 60
       INIT_DEMO_DATA_ENABLED: "true"
+      BEER_PICTURES_DIR: /app/storage/beer-pictures
+      BEER_PICTURE_MAX_SIZE_BYTES: 1048576

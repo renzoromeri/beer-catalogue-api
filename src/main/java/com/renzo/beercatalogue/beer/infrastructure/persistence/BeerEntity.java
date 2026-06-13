@@ -62,4 +62,10 @@ public class BeerEntity {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "manufacturer_id", nullable = false)
     private ManufacturerEntity manufacturer;
+
+    private String pictureFileName;
+
+    private String pictureContentType;
+
+    private Long pictureSize;
 }

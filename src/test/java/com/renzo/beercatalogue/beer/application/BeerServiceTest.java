@@ -9,6 +9,7 @@ import static org.mockito.Mockito.when;
 
 import com.renzo.beercatalogue.beer.domain.Beer;
 import com.renzo.beercatalogue.beer.domain.BeerType;
+import com.renzo.beercatalogue.beer.application.port.BeerPictureStorage;
 import com.renzo.beercatalogue.beer.infrastructure.persistence.BeerEntity;
 import com.renzo.beercatalogue.beer.infrastructure.persistence.BeerJpaRepository;
 import com.renzo.beercatalogue.common.exception.ConflictException;
@@ -36,11 +37,19 @@ class BeerServiceTest {
     @Mock
     private OwnershipAuthorizationService authorizationService;
 
+    @Mock
+    private BeerPictureStorage pictureStorage;
+
     private BeerService service;
 
     @BeforeEach
     void setUp() {
-        service = new BeerService(beerRepository, manufacturerRepository, authorizationService);
+        service = new BeerService(
+                beerRepository,
+                manufacturerRepository,
+                authorizationService,
+                pictureStorage
+        );
     }
 
     @Test
@@ -125,11 +134,13 @@ class BeerServiceTest {
     @Test
     void shouldDeleteBeer() {
         BeerEntity existing = entity(10L, "Guinness Draught", manufacturer(1L, "Guinness"));
+        existing.setPictureFileName("10-picture.png");
         when(beerRepository.findById(10L)).thenReturn(Optional.of(existing));
 
         service.delete(10L);
 
         verify(authorizationService).requireCanManageBeer(existing);
+        verify(pictureStorage).deleteIfExists("10-picture.png");
         verify(beerRepository).delete(existing);
     }
 
