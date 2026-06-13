@@ -1,0 +1,62 @@
+spring:
+  application:
+    name: beer-catalogue-api
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:h2:mem:beercatalogue;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE}
+    username: ${SPRING_DATASOURCE_USERNAME:sa}
+    password: ${SPRING_DATASOURCE_PASSWORD:}
+    driver-class-name: org.h2.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+  h2:
+    console:
+      enabled: false
+  servlet:
+    multipart:
+      max-file-size: ${BEER_PICTURE_MAX_SIZE_BYTES:1048576}B
+
+server:
+  port: ${SERVER_PORT:8080}
+
+app:
+  security:
+    jwt:
+      secret: ${JWT_SECRET:local-development-secret-change-me}
+      expiration-minutes: ${JWT_EXPIRATION_MINUTES:60}
+  init-demo-data:
+    enabled: ${INIT_DEMO_DATA_ENABLED:true}
+  storage:
+    beer-pictures-dir: ${BEER_PICTURES_DIR:./storage/beer-pictures}
+    max-file-size-bytes: ${BEER_PICTURE_MAX_SIZE_BYTES:1048576}
+
+---
+spring:
+  config:
+    activate:
+      on-profile: local
+  h2:
+    console:
+      enabled: true
+
+---
+spring:
+  config:
+    activate:
+      on-profile: docker
+
+---
+spring:
+  config:
+    activate:
+      on-profile: k8s
+
+---
+spring:
+  config:
+    activate:
+      on-profile: test
+
+app:
+  init-demo-data:
+    enabled: false

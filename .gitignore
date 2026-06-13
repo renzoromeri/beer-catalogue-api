@@ -1,6 +1,19 @@
 # Compiled class file
 *.class
 
+# Maven
+target/
+.mvn/timing.properties
+/storage/
+
+# IDEs
+.idea/
+*.iml
+.vscode/
+
+# macOS
+.DS_Store
+
 # Log file
 *.log
 

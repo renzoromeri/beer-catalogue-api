@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: beer-catalogue-api-config
+data:
+  SPRING_PROFILES_ACTIVE: "k8s"
+  SERVER_PORT: "8080"
+  JWT_EXPIRATION_MINUTES: "60"
+  INIT_DEMO_DATA_ENABLED: "true"
+  SPRING_DATASOURCE_URL: "jdbc:h2:mem:beercataloguedb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE"
+  BEER_PICTURES_DIR: "/app/storage/beer-pictures"
+  BEER_PICTURE_MAX_SIZE_BYTES: "1048576"
