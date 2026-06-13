@@ -53,3 +53,5 @@ ChatGPT and Codex assisted with planning, implementation guidance, refactoring,
 documentation drafting, and test strategy. All suggestions were reviewed,
 adapted, executed, tested, and validated by the author, who retains
 responsibility for final decisions, code ownership, testing, and delivery.
+`AGENTS.md` records the project-specific architectural boundaries, engineering
+conventions, and scope constraints provided to AI-assisted development tools.

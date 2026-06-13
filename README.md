@@ -164,7 +164,11 @@ See [Technical decisions and trade-offs](docs/DECISIONS.md).
 
 This project was developed with assistance from ChatGPT and Codex. AI tools
 supported planning, implementation guidance, refactoring, documentation
-drafting, and test strategy. 
+drafting, and test strategy.
 All suggested changes were reviewed, adapted, executed, tested, and validated
-by the author. Final design decisions, code ownership, testing, and delivery 
+by the author. Final design decisions, code ownership, testing, and delivery
 remain the responsibility of the author.
+
+`AGENTS.md` defines project-specific guidance for AI-assisted development,
+including architectural boundaries, engineering conventions, and scope
+constraints.
